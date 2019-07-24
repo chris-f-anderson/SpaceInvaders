@@ -58,10 +58,14 @@ while is_playing:
 
     handle_events()
 
-    if should_move_right:
-        hero.xcor += 10
-    elif should_move_left:
-        hero.xcor -= 10    
+    if hero.has_collided_with_left_wall(GAME_LEFT_WALL) == False:
+        if should_move_left:
+            hero.xcor -= 10
+    
+    if hero.has_collided_with_right_wall(GAME_RIGHT_WALL) == False:
+        if should_move_right:
+            hero.xcor += 10
+        
 
     game_display.blit(game_display, (0, 0))
 
