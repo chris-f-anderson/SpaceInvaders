@@ -1,6 +1,7 @@
 # Ctrl + Shift + P, then select interpreter
 # Choose an interpreter that works
 import pygame
+from hero import Hero
 
 # Game settings
 WINDOW_WIDTH = 400
@@ -14,6 +15,7 @@ GAME_TOP_WALL = GAME_TOP_MARGIN + GAME_BORDER_WIDTH
 GAME_RIGHT_WALL = WINDOW_WIDTH - GAME_SIDE_MARGIN - GAME_BORDER_WIDTH
 GAME_BOTTOM_WALL = WINDOW_HEIGHT - GAME_BOTTOM_MARGIN - GAME_BORDER_WIDTH
 GAME_LEFT_WALL = GAME_SIDE_MARGIN + GAME_BORDER_WIDTH
+
 
 # Colors
 BLACK = (0, 0, 0)
@@ -29,14 +31,11 @@ score_font = pygame.font.SysFont('Arial', 22, True)
 title_font = pygame.font.SysFont('Arial', 26, True)
 pygame.display.set_caption('SPACE INVADERS!')
 
-
-x_coordinate = 200
-y_coordinate = GAME_BOTTOM_WALL - player_image.get_height()
 should_move_right = False
 should_move_left = False
 
 def handle_events():
-    global x_coordinate, y_coordinate, is_playing, should_move_left, should_move_right
+    global is_playing, should_move_left, should_move_right
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             is_playing = False
@@ -52,7 +51,7 @@ def handle_events():
                 should_move_left = False
             elif event.key == pygame.K_RIGHT:
                 should_move_right = False        
-
+hero = Hero(player_image, 200, GAME_BOTTOM_WALL - player_image.get_height())
     # Main game loop
 is_playing = True
 while is_playing:
@@ -60,9 +59,9 @@ while is_playing:
     handle_events()
 
     if should_move_right:
-        x_coordinate += 10
+        hero.xcor += 10
     elif should_move_left:
-        x_coordinate -= 10    
+        hero.xcor -= 10    
 
     game_display.blit(game_display, (0, 0))
 
@@ -78,7 +77,7 @@ while is_playing:
                     WINDOW_WIDTH - GAME_LEFT_WALL - GAME_SIDE_MARGIN - GAME_BORDER_WIDTH, \
                     WINDOW_HEIGHT - GAME_TOP_WALL - GAME_BOTTOM_MARGIN - GAME_BORDER_WIDTH))
 
-    game_display.blit(player_image, (x_coordinate, y_coordinate))
+    hero.show(game_display)
     # score_text = score_font.render(str(snake.score), False, (255, 255, 255))
     # game_display.blit(score_text, (0,0))
 
