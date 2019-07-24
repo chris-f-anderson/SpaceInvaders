@@ -22,7 +22,8 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
 # Media files
-player_image = pygame.image.load('si-player.gif')
+player_image = pygame.image.load('media/si-player.gif')
+bullet_image = pygame.image.load('media/si-bullet.gif')
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -46,6 +47,8 @@ def handle_events():
             elif event.key == pygame.K_RIGHT:
                 should_move_right = True
                 should_move_left = False
+            elif event.key == pygame.K_SPACE:
+                hero.shoot(bullet_image)
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
                 should_move_left = False
@@ -82,6 +85,11 @@ while is_playing:
                     WINDOW_HEIGHT - GAME_TOP_WALL - GAME_BOTTOM_MARGIN - GAME_BORDER_WIDTH))
 
     hero.show(game_display)
+
+    for bullet in hero.bullets_fired:
+        bullet.move()
+        bullet.show(game_display)
+
     # score_text = score_font.render(str(snake.score), False, (255, 255, 255))
     # game_display.blit(score_text, (0,0))
 
