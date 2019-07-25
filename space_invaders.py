@@ -2,6 +2,7 @@
 # Choose an interpreter that works
 import pygame
 from hero import Hero
+from enemy import Enemy
 
 # Game settings
 WINDOW_WIDTH = 400
@@ -24,6 +25,7 @@ WHITE = (255, 255, 255)
 # Media files
 player_image = pygame.image.load('media/si-player.gif')
 bullet_image = pygame.image.load('media/si-bullet.gif')
+enemy_image = pygame.image.load('media/si-enemy.gif')
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -55,7 +57,13 @@ def handle_events():
             elif event.key == pygame.K_RIGHT:
                 should_move_right = False        
 hero = Hero(player_image, 200, GAME_BOTTOM_WALL - player_image.get_height())
-    # Main game loop
+
+enemies = []
+enemies.append(Enemy(enemy_image, 25, 25))
+enemies.append(Enemy(enemy_image, 50, 25))
+enemies.append(Enemy(enemy_image, 75, 25))
+
+# Main game loop
 is_playing = True
 while is_playing:
 
@@ -68,8 +76,18 @@ while is_playing:
     if hero.has_collided_with_right_wall(GAME_RIGHT_WALL) == False:
         if should_move_right:
             hero.xcor += 10
-        
 
+    for i in range(0, len(enemies)):
+        if enemies[i].has_collided_with_left_wall(GAME_LEFT_WALL):
+            enemies[i].ycor += 10
+            enemies[i].direction = 1
+        if enemies [i].has_collided_with_right_wall(GAME_RIGHT_WALL):
+            enemies[i].ycor += 10
+            enemies[i].direction = -1
+
+    for i in range (0, len(enemies)):
+        enemies[i].xcor += 10 * enemies[i].direction
+        
     game_display.blit(game_display, (0, 0))
 
     game_display.fill((BLACK))
@@ -85,6 +103,9 @@ while is_playing:
                     WINDOW_HEIGHT - GAME_TOP_WALL - GAME_BOTTOM_MARGIN - GAME_BORDER_WIDTH))
 
     hero.show(game_display)
+    
+    for i in range(0, len(enemies)):
+        enemies[i].show(game_display)
 
     for bullet in hero.bullets_fired:
         if bullet.has_collided_with_top_wall(GAME_TOP_WALL):
