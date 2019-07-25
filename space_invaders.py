@@ -34,28 +34,23 @@ score_font = pygame.font.SysFont('Arial', 22, True)
 title_font = pygame.font.SysFont('Arial', 26, True)
 pygame.display.set_caption('SPACE INVADERS!')
 
-should_move_right = False
-should_move_left = False
-
 def handle_events():
-    global is_playing, should_move_left, should_move_right
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            is_playing = False
+            hero.is_alive = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
-                should_move_left = True
-                should_move_right = False
+                hero.set_direction_left()
             elif event.key == pygame.K_RIGHT:
-                should_move_right = True
-                should_move_left = False
+                hero.set_direction_right()
             elif event.key == pygame.K_SPACE:
                 hero.shoot(bullet_image)
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
-                should_move_left = False
+                hero.set_direction_none()
             elif event.key == pygame.K_RIGHT:
-                should_move_right = False        
+                hero.set_direction_none()       
+
 hero = Hero(player_image, 200, GAME_BOTTOM_WALL - player_image.get_height())
 
 enemies = []
@@ -65,37 +60,31 @@ enemies.append(Enemy(enemy_image, 75, 25))
 
 
 # Main game loop
-is_playing = True
-while is_playing:
+while hero.is_alive:
 
     handle_events()
 
-    if hero.has_collided_with_left_wall(GAME_LEFT_WALL) == False:
-        if should_move_left:
-            hero.xcor -= 10
-    
-    if hero.has_collided_with_right_wall(GAME_RIGHT_WALL) == False:
-        if should_move_right:
-            hero.xcor += 10
+    hero.move(GAME_LEFT_WALL, GAME_RIGHT_WALL)
 
     # Move each enemy down and change its direction if it has hit a wall
-    for i in range(0, len(enemies)):
-        if enemies[i].has_collided_with_left_wall(GAME_LEFT_WALL):
+    for enemy in enemies:
+        if enemy.has_collided_with_left_wall(GAME_LEFT_WALL):
             # Move all enemies down and change all their directions
-            for k in range(0, len(enemies)):
-                enemies[k].ycor += 10
-                enemies[k].direction = 1
+            for e in enemies:
+                e.ycor += 10
+                e.direction = 1
             break 
-        if enemies [i].has_collided_with_right_wall(GAME_RIGHT_WALL):
+        if enemy.has_collided_with_right_wall(GAME_RIGHT_WALL):
             # Move all enemies down and change all their directions
-            for k in range(0, len(enemies)):
-                enemies[k].ycor += 10
-                enemies[k].direction = -1
+            for e in enemies:
+                e.ycor += 10
+                e.direction = -1
             break 
 
     # Move each enemy over based on its direction
-    for i in range (0, len(enemies)):
-        enemies[i].xcor += 10 * enemies[i].direction
+
+    for enemy in enemies:
+        enemy.xcor += 4 * enemy.direction
         
     game_display.blit(game_display, (0, 0))
 
@@ -113,8 +102,8 @@ while is_playing:
 
     hero.show(game_display)
     
-    for i in range(0, len(enemies)):
-        enemies[i].show(game_display)
+    for enemy in enemies:
+        enemy.show(game_display)
 
     for bullet in hero.bullets_fired:
         if bullet.has_collided_with_top_wall(GAME_TOP_WALL):
