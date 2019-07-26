@@ -23,12 +23,14 @@ GAME_LEFT_WALL = GAME_SIDE_MARGIN + GAME_BORDER_WIDTH
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
+pygame.init()
 # Media files
 player_image = pygame.image.load('media/si-player.gif')
 bullet_image = pygame.image.load('media/si-bullet.gif')
 enemy_image = pygame.image.load('media/si-enemy.gif')
+laser_sound = pygame.mixer.Sound('media/si-laser (1).wav')
+explosion_sound = pygame.mixer.Sound('media/si-explode (1).wav')
 
-pygame.init()
 clock = pygame.time.Clock()
 game_display = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 score_font = pygame.font.SysFont('Arial', 22, True)
@@ -45,7 +47,10 @@ def handle_events():
             elif event.key == pygame.K_RIGHT:
                 hero.set_direction_right()
             elif event.key == pygame.K_SPACE:
+                laser_sound.play()
                 hero.shoot(bullet_image)
+            elif event.key == pygame.K_p:
+                pause_game()
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
                 hero.set_direction_none()
@@ -63,6 +68,18 @@ def show_background():
                     (GAME_LEFT_WALL, GAME_TOP_WALL, \
                     WINDOW_WIDTH - GAME_LEFT_WALL - GAME_SIDE_MARGIN - GAME_BORDER_WIDTH, \
                     WINDOW_HEIGHT - GAME_TOP_WALL - GAME_BOTTOM_MARGIN - GAME_BORDER_WIDTH))
+def pause_game():
+    is_paused = True
+    while is_paused:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                is_paused = False
+                hero.is_alive = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p:
+                    is_paused = False
+    clock.tick(30)
+
 
 hero = Hero(player_image, 200, GAME_BOTTOM_WALL - player_image.get_height())
 
@@ -75,6 +92,15 @@ while hero.is_alive:
 
     fleet.handle_wall_collision(GAME_LEFT_WALL, GAME_RIGHT_WALL)
     hero.handle_wall_collision_for_bullets(GAME_TOP_WALL)
+
+    for bullet in hero.bullets_fired:
+        for ship in fleet.ships:
+            if bullet.has_collided_with(ship):
+                explosion_sound.play()
+                bullet.is_alive = False
+                ship.is_alive = False
+
+    fleet.remove_dead_ships()
 
     hero.move(GAME_LEFT_WALL, GAME_RIGHT_WALL)
     fleet.move_over() 
